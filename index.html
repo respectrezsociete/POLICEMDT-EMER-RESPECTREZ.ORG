@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MDT — Respect Rez | RP (Full Police & Military)</title>
+<style>
+:root{--bg:#0b1020;--card:#0f1724;--accent:#7c3aed;--muted:#9aa4b2;--glass:rgba(255,255,255,0.03)}
+*{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+body{margin:0;background:linear-gradient(180deg,#071028 0%, #071822 100%);color:#e6eef6}
+.wrap{max-width:1200px;margin:22px auto;padding:18px}
+header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.logo{font-weight:800;font-size:22px;color:var(--accent)}
+.sub{color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:18px}
+.card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+.login input, .form input, .form select, .form textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:inherit}
+button{padding:10px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer}
+.muted{color:var(--muted);font-size:13px}
+.nav button{width:100%;text-align:left;padding:10px;border-radius:8px;margin-bottom:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);color:inherit}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left;font-size:13px}
+.small{font-size:12px;color:var(--muted)}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.badge{padding:6px 8px;border-radius:999px;font-size:12px;background:rgba(255,255,255,0.03)}
+.roles-list{max-height:260px;overflow:auto;padding:8px;background:rgba(255,255,255,0.02);border-radius:8px}
+.role-item{padding:8px;border-radius:6px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.02)}
+.role-actions{display:flex;gap:6px;margin-top:8px}
+footer{margin-top:14px;color:var(--muted);font-size:12px}
+.flex{display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div>
+<div class="logo">MDT — Respect Rez (Full RP)</div>
+<div class="sub">GTA5 RP Style Mobile Data Terminal — Owner-managed Police, Military, EMS, Fire</div>
+</div>
+<div style="margin-left:auto;text-align:right">
+<div class="small">Owner account preloaded. Data saved in browser localStorage. Not for real use.</div>
+</div>
+</header>
+
+<div class="layout">
+<aside class="card">
+<div id="authArea">
+<h3>Login</h3>
+<div class="login">
+<input id="username" placeholder="username" />
+<input id="password" placeholder="password" type="password" />
+<div style="display:flex;gap:8px;margin-top:8px">
+<button id="loginBtn">Login</button>
+<button id="logoutBtn" style="display:none;background:transparent;border:1px solid rgba(255,255,255,0.06)">Logout</button>
+</div>
+<div class="muted" style="margin-top:8px">Owner: <strong>Wael bn rez</strong> — password preset (change after login)</div>
+</div>
+</div>
+
+<hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+
+<div class="nav" id="navButtons" style="display:none">
+<button data-view="dashboard">Dashboard</button>
+<button data-view="citizens">Citizens</button>
+<button data-view="police">Police Accounts</button>
+<button data-view="incidents">Incidents / Alerts</button>
+<button data-view="settings">Settings</button>
+</div>
+
+<footer>
+<div class="small">Full RP MDT: manage citizens, police, military, EMS, Fire, alerts, permissions, owner-only controls.</div>
+</footer>
+</aside>
+
+<main>
+<div id="views">
+<!-- DASHBOARD -->
+<section id="dashboard" class="card" style="display:none">
+<div class="topbar">
+<div>
+<h2>Dashboard</h2>
+<div class="small">Overview of accounts, active alerts and quick actions.</div>
+</div>
+<div class="badge" id="counts">0 citizens • 0 police • 0 alerts</div>
+</div>
+<div class="grid">
+<div class="card">
+<h4>Quick Create</h4>
+<div class="form">
+<input id="quick_name" placeholder="Name" />
+<select id="quick_type"><option value="citizen">Citizen</option><option value="police">Police</option></select>
+<select id="quick_rank" style="display:none"></select>
+<div class="flex"><input id="quick_count" type="number" min="1" max="100" placeholder="Create count (for police)" /><button id="quick_create">Create</button></div>
+</div>
+</div>
+<div class="card">
+<h4>Active Alerts</h4>
+<div id="alertsArea" class="roles-list small">No alerts</div>
+</div>
+<div class="card">
+<h4>Recent Activity</h4>
+<div id="activity" class="small">—</div>
+</div>
+</div>
+</section>
+
+<!-- CITIZENS -->
+<section id="citizens" class="card" style="display:none">
+<h3>Citizens</h3>
+<div class="form">
+<input id="cit_name" placeholder="Full name" />
+<input id="cit_identifier" placeholder="Identifier (ID)" />
+<button id="addCitizen">Add Citizen</button>
+</div>
+<hr />
+<div id="citList"></div>
+</section>
+
+<!-- POLICE ACCOUNTS -->
+<section id="police" class="card" style="display:none">
+<h3>Police & Military Accounts (Owner controls)</h3>
+<div class="form">
+<input id="pol_name" placeholder="Officer name" />
+<input id="pol_username" placeholder="username" />
+<input id="pol_password" placeholder="password" />
+<select id="pol_rank"></select>
+<div class="flex"><input id="pol_count" type="number" min="1" max="1000" placeholder="Create N officers (max 1000)" /><button id="addPolice">Create</button></div>
+</div>
+<hr />
+<div id="polList" class="roles-list small"></div>
+</section>
+
+<!-- INCIDENTS / ALERTS -->
+<section id="incidents" class="card" style="display:none">
+<h3>Incidents & Alerts</h3>
+<div class="form">
+<input id="alert_title" placeholder="Title" />
+<textarea id="alert_desc" placeholder="Description"></textarea>
+<select id="alert_priority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
+<div class="flex"><select id="alert_target"><option value="all">All Police</option></select><button id="sendAlert">Send Alert</button></div>
+</div>
+<hr />
+<div id="alertList" class="roles-list small">No alerts yet</div>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings" class="card" style="display:none">
+<h3>Settings</h3>
+<div class="muted">Owner-only settings: change owner password, max police cap, and export/import data.</div>
+<div class="form">
+<input id="owner_pass_new" placeholder="New owner password" type="password" />
+<button id="changeOwnerPass">Change Password</button>
+<hr />
+<label class="small">Max police/military cap</label>
+<input id="maxPolice" type="number" min="1" max="5000" />
+<div class="flex" style="margin-top:8px"><input id="exportName" placeholder="Export filename" /><button id="exportBtn">Export JSON</button><button id="importBtn">Import JSON</button></div>
+<input id="importFile" type="file" style="display:none" />
+</div>
+</section>
+
+</div>
+</main>
+</div>
+<footer class="small">Built for demo RP servers — modify as you like. 2025 Respect Rez</footer>
+</div>
+
+<script>
+// MDT Full RP JS
+const ROLE_LABELS = {
+owner: 'مدير الشرطة العام / القائد الأعلى', deputy: 'نائب المدير', commander: 'قائد الشرطة', assistant: 'مساعد القائد', patrol_chief: 'رئيس الدوريات', officer: 'ضابط شرطة', inspector: 'مفتش شرطة', private_investigator: 'محقق خاص', field_officer: 'شرطي ميداني', traffic_officer: 'شرطي مرور', k9: 'فرقة الكلاب البوليسية', riot: 'وحدة التدخل السريع', sniper: 'قناص الشرطة', forensics: 'الشرطة العلمية', cyber: 'الشرطة الإلكترونية', comm_center: 'مركز الاتصالات', recruit: 'طالب شرطة', 
+trainee: 'مستجد (متدرب جديد)', soldier: 'جندي', soldier1: 'جندي أول', corporal: 'عريف', corporal1: 'عريف أول', sergeant: 'رقيب', sergeant1: 'رقيب أول', lieutenant: 'ملازم', lieutenant1: 'ملازم أول', captain: 'نقيب', major: 'رائد', lt_colonel:
